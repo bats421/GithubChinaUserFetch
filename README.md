@@ -34,11 +34,11 @@ Parameters:
 - `num`: How many users you want to fetch?
 - `batch_size`: How many users to fetch in a request?
 
-## `class.User.toDataFrame()`
+### `class.User.toDataFrame()`
 
 Transform data to Pandas DataFrame.
 
-## `class.User.saveCSV(fileName, mode)`
+### `class.User.saveCSV(fileName, mode)`
 
 Write DataFrame to file. Notice: you must run `toDataFrame()` before calling this function.
 
