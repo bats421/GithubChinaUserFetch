@@ -9,7 +9,7 @@ Create `config.yml` as config file at project root directory, and write this lin
 token: xxx
 ```
 
-Follow the steps in "[Creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)" to create a token and fill in config file. The scope requires **repo** and **user** to request user's data.
+Follow the steps in "[Creating a personal access token](https://docs.github.com/en/github/authenticating-to-github/creating-a-personal-access-token)" to create a token and fill in config file. The scope requires **repo**, **admin:org** and **user** to fetch data.
 
 ## Installation
 
