@@ -54,6 +54,7 @@ class UserOrganization:
             self.data = data
           print("Finshed #%d" % (self.count+1))
           if(self.hasNextPage == False):
+            print("No more data")
             break
     pass
     def preprocessing(self):

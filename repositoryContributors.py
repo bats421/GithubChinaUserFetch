@@ -21,7 +21,8 @@ class RepositoryContributors:
     def toDataFrame(self):
         self.df = pd.json_normalize(self.data)
         self.df = self.df[["login", "type", "site_admin", "contributions"]]
-        self.df['repo_name'] = self.login+"/"+self.name
+        self.df['owner'] = self.login
+        self.df["name"] = self.name
         print(self.df)
 
     def saveCSV(self, fileName, mode):

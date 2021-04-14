@@ -6,9 +6,10 @@ class UserRepository:
     query = """
    {
   user(login: "%s") {
-    repositories(last: %d, after: %s) {
+    repositories(last: %d, before: %s) {
       pageInfo {
         hasNextPage
+        hasPreviousPage
         startCursor
         endCursor
       }
@@ -46,7 +47,7 @@ class UserRepository:
 }
 
 """
-    endCursor = "null"
+    startCursor = "null"
 
     def __init__(self, login):
         self.data = {}
@@ -70,18 +71,20 @@ class UserRepository:
             print("Request #%d" % (i+1))
             # print(self.endCursor)
             if i == times-1 and rest > 0:
-                query = self.query % (self.login, rest, self.endCursor)
+                query = self.query % (self.login, rest, self.startCursor)
             else:
-                query = self.query % (self.login, batch_size, self.endCursor)
+                query = self.query % (self.login, batch_size, self.startCursor)
             data = GraphQL.execute(query)
             if self.data:
                 self.data["user"]["repositories"]["edges"] = self.data["user"]["repositories"]["edges"] + data["user"]["repositories"]["edges"]
-                self.data["user"]["repositories"]["pageInfo"] = self.data["user"]["repositories"]["pageInfo"]
+                self.data["user"]["repositories"]["pageInfo"] = data["user"]["repositories"]["pageInfo"]
             else:
                 self.data = data
             print("Finshed #%d" % (i+1))
-            # print(data)
-            self.endCursor = "\"%s\"" % data["user"]["repositories"]["pageInfo"]["endCursor"]
+            self.startCursor = "\"%s\"" % data["user"]["repositories"]["pageInfo"]["startCursor"]
+            if not self.data["user"]["repositories"]["pageInfo"]["hasPreviousPage"]:
+              print("No more data")
+              break
 
     def preprocessing(self):
         print("Data preprocessing")
