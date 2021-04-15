@@ -1,6 +1,19 @@
 import pandas as pd
 from utils import FileWriter, GraphQL
 
+
+def get_data(data, *params):
+    if isinstance(data, dict):
+        result = data
+        for p in params:
+            try:
+                result = result[p]
+            except:
+                return None
+        return result
+    return None
+
+
 class UserRepository:
     count = 0
     query = """
@@ -76,13 +89,18 @@ class UserRepository:
                 query = self.query % (self.login, batch_size, self.startCursor)
             data = GraphQL.execute(query)
             if self.data:
-                self.data["user"]["repositories"]["edges"] = self.data["user"]["repositories"]["edges"] + data["user"]["repositories"]["edges"]
-                self.data["user"]["repositories"]["pageInfo"] = data["user"]["repositories"]["pageInfo"]
+                print(get_data(data, "user", "repositories", "edges"))
+                if get_data(data, "user", "repositories", "edges") is not None:
+                    self.data["user"]["repositories"]["edges"] = self.data["user"]["repositories"]["edges"] + \
+                                                             get_data(data, "user", "repositories", "edges")
+                if get_data(data, "user", "repositories", "pageInfo") is not None:
+                    self.data["user"]["repositories"]["pageInfo"] = get_data(data, "user", "repositories", "pageInfo")
             else:
                 self.data = data
             print("Finshed #%d" % (i+1))
-            self.startCursor = "\"%s\"" % data["user"]["repositories"]["pageInfo"]["startCursor"]
-            if not self.data["user"]["repositories"]["pageInfo"]["hasPreviousPage"]:
+            if get_data(data, "user", "repositories", "pageInfo", "startCursor") is not None:
+                self.startCursor = "\"%s\"" % get_data(data, "user", "repositories", "pageInfo", "startCursor")
+            if get_data(data, "user", "repositories", "pageInfo", 'hasPreviousPage') is None or not self.data["user"]["repositories"]["pageInfo"]["hasPreviousPage"]:
               print("No more data")
               break
 
