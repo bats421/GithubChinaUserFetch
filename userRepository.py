@@ -1,17 +1,6 @@
 import pandas as pd
 from utils import FileWriter, GraphQL
-
-
-def get_data(data, *params):
-    if isinstance(data, dict):
-        result = data
-        for p in params:
-            try:
-                result = result[p]
-            except:
-                return None
-        return result
-    return None
+from utils.DataProcess import get_data
 
 
 class UserRepository:
@@ -69,7 +58,7 @@ class UserRepository:
         self.login = login
 
     def fetch(self, num=10, batch_size=10):
-        times = int(num/batch_size)
+        times = int(num / batch_size)
         if times < 1:
             times = 1
         print("data numbers: %d" % num)
@@ -77,13 +66,13 @@ class UserRepository:
         # times = num
         rest = num % batch_size
         if rest > 0 and times != 1:
-            times = times+1
+            times = times + 1
         print("times: %d" % times)
         for i in range(times):
             # print(self.query % self.endCursor)
-            print("Request #%d" % (i+1))
+            print("Request #%d" % (i + 1))
             # print(self.endCursor)
-            if i == times-1 and rest > 0:
+            if i == times - 1 and rest > 0:
                 query = self.query % (self.login, rest, self.startCursor)
             else:
                 query = self.query % (self.login, batch_size, self.startCursor)
@@ -92,17 +81,18 @@ class UserRepository:
                 print(get_data(data, "user", "repositories", "edges"))
                 if get_data(data, "user", "repositories", "edges") is not None:
                     self.data["user"]["repositories"]["edges"] = self.data["user"]["repositories"]["edges"] + \
-                                                             get_data(data, "user", "repositories", "edges")
+                                                                 get_data(data, "user", "repositories", "edges")
                 if get_data(data, "user", "repositories", "pageInfo") is not None:
                     self.data["user"]["repositories"]["pageInfo"] = get_data(data, "user", "repositories", "pageInfo")
             else:
                 self.data = data
-            print("Finshed #%d" % (i+1))
+            print("Finshed #%d" % (i + 1))
             if get_data(data, "user", "repositories", "pageInfo", "startCursor") is not None:
                 self.startCursor = "\"%s\"" % get_data(data, "user", "repositories", "pageInfo", "startCursor")
-            if get_data(data, "user", "repositories", "pageInfo", 'hasPreviousPage') is None or not self.data["user"]["repositories"]["pageInfo"]["hasPreviousPage"]:
-              print("No more data")
-              break
+            if get_data(data, "user", "repositories", "pageInfo", 'hasPreviousPage') is None or not \
+            self.data["user"]["repositories"]["pageInfo"]["hasPreviousPage"]:
+                print("No more data")
+                break
 
     def preprocessing(self):
         print("Data preprocessing")
@@ -118,7 +108,7 @@ class UserRepository:
                 self.reform[index]["pullRequests"] = i["pullRequests"]["totalCount"]
                 self.reform[index]["watchers"] = i["watchers"]["totalCount"]
                 if i["primaryLanguage"]:
-                  self.reform[index]["primaryLanguage"] = i["primaryLanguage"]["name"]
+                    self.reform[index]["primaryLanguage"] = i["primaryLanguage"]["name"]
                 self.reform[index]["cursor"] = cursors[index]
                 if i["description"]:
                     self.reform[index]["description"] = i["description"].replace('\n', '').replace('\r', '')

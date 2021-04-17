@@ -1,5 +1,9 @@
 from utils import GraphQL, FileWriter
 import pandas as pd
+
+from utils.DataProcess import get_data
+
+
 class UserPR:
     query = """
     query { 
@@ -37,14 +41,16 @@ class UserPR:
   }
 }
 """
+
     def __init__(self, login, startTime, endTime):
         self.data = {}
         self.login = login
         self.startTime = startTime
         self.endTime = endTime
         self.endCursor = "null"
+
     def fetch(self, num=10, batch_size=10):
-        times = int(num/batch_size)
+        times = int(num / batch_size)
         if times < 1:
             times = 1
         print("data numbers: %d" % num)
@@ -52,27 +58,46 @@ class UserPR:
         # times = num
         rest = num % batch_size
         if rest > 0 and times != 1:
-            times = times+1
+            times = times + 1
         print("times: %d" % times)
         for i in range(times):
             # print(self.query % self.endCursor)
-            print("Request #%d" % (i+1))
+            print("Request #%d" % (i + 1))
             # print(self.endCursor)
-            if i == times-1 and rest > 0:
+            if i == times - 1 and rest > 0:
                 query = self.query % (self.login, self.startTime, self.endTime, rest, self.endCursor)
             else:
                 query = self.query % (self.login, self.startTime, self.endTime, batch_size, self.endCursor)
             data = GraphQL.execute(query)
+            print(get_data(data, "user", "contributionsCollection", "pullRequestContributions", "pageInfo",
+                           "startCursor"))
+
+
             if self.data:
-                self.data["user"]["contributionsCollection"]["pullRequestContributions"]["edges"] = self.data["user"]["contributionsCollection"]["pullRequestContributions"]["edges"] + data["user"]["contributionsCollection"]["pullRequestContributions"]["edges"]
-                self.data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"] = data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"]
+                if get_data(data, "user", "contributionsCollection", "pullRequestContributions", "edges") is not None:
+                    self.data["user"]["contributionsCollection"]["pullRequestContributions"]["edges"] = \
+                        self.data["user"]["contributionsCollection"]["pullRequestContributions"]["edges"] + \
+                        get_data(data, "user", "contributionsCollection", "pullRequestContributions", "edges")
+                if get_data(data, "user", "contributionsCollection", "pullRequestContributions",
+                            "pageInfo") is not None:
+                    self.data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"] = \
+                        get_data(data, "user", "contributionsCollection", "pullRequestContributions", "pageInfo")
             else:
                 self.data = data
-            print("Finshed #%d" % (i+1))
-            self.startCursor = "\"%s\"" % data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"]["startCursor"]
-            if not self.data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"]["hasPreviousPage"]:
-              print("No more data")
-              break
+            print("Finshed #%d" % (i + 1))
+            if get_data(data, "user", "contributionsCollection", "pullRequestContributions", "pageInfo",
+                        "startCursor") is not None:
+                self.startCursor = "\"%s\"" % \
+                                   get_data(data, "user", "contributionsCollection", "pullRequestContributions",
+                                            "pageInfo",
+                                            "startCursor")
+            if get_data(data, "user", "contributionsCollection", "pullRequestContributions", "pageInfo",
+                        "hasPreviousPage") is None or not \
+                    self.data["user"]["contributionsCollection"]["pullRequestContributions"]["pageInfo"][
+                        "hasPreviousPage"]:
+                print("No more data")
+                break
+
     def preprocessing(self):
         print("Data preprocessing")
         # print(self.data)
@@ -94,11 +119,13 @@ class UserPR:
                 if i["pullRequest"]["bodyText"]:
                     self.reform[index]["bodyText"] = i["pullRequest"]["bodyText"].replace('\n', '').replace('\r', '')
                 del i["pullRequest"]
+
     def toDataFrame(self):
         self.preprocessing()
         self.df = pd.json_normalize(self.reform)
         self.df["login"] = self.login
         print(self.df)
+
     def saveCSV(self, fileName, mode):
         print("Save data")
         FileWriter.writeFile(self.df, fileName, mode)

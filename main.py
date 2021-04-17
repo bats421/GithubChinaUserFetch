@@ -9,8 +9,8 @@ if __name__ == '__main__':
     # data.toDataFrame()
     # data.saveCSV("users.csv", "w")
 
-    # users = pd.read_csv('users.csv')
-    # user_list = users['login'].values
+    users = pd.read_csv('users.csv')
+    user_list = users['login'].values
     # for user in user_list:
     #   print(user)
     #   repo = userRepository.UserRepository(user)
@@ -32,18 +32,23 @@ if __name__ == '__main__':
         if is_url:
             flag = contributors.toDataFrame()
             if flag:
-                contributors.saveCSV("repoContributors.csv", 'a+')
-    # orgs = userOrganization.UserOrganization("skyzh")
-    # orgs.fetch()
-    # orgs.toDataFrame()
-    # orgs.saveCSV("userOrgs.csv", 'a')
+                contributors.saveCSV("repoContributors2.csv", 'a+')
+
+    # for user in user_list:
+    #     orgs = userOrganization.UserOrganization(user)
+    #     orgs.fetch()
+    #     orgs.toDataFrame()
+    #     orgs.saveCSV("userOrgs.csv", 'a+')
     # topics = repositoryTopic.RepositoryTopic("vite", "vitejs")
     # topics.fetch()
     # topics.toDataFrame()
     # topics.saveCSV("repositoryTopics.csv", 'a')
     # endTime = datetime.now()
     # startTime = endTime-timedelta(days=365)
-    # userPRs = userPR.UserPR("yyx990803", startTime.isoformat(), endTime.isoformat())
-    # userPRs.fetch(10, 10)
-    # userPRs.toDataFrame()
-    # userPRs.saveCSV("userPr.csv", 'a')
+    # print(endTime)
+    # print(startTime)
+    # for user in user_list:
+    #     userPRs = userPR.UserPR(user, startTime.isoformat(), endTime.isoformat())
+    #     userPRs.fetch(10, 10)
+    #     userPRs.toDataFrame()
+    #     userPRs.saveCSV("userPr.csv", 'a+')
