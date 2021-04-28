@@ -24,7 +24,7 @@ class RepositoryContributors:
             r = requests.get(url, headers=header, timeout=(3, 15))
             print(r.status_code)
             logging.basicConfig(level=logging.WARNING,
-                                filename='log.txt',
+                                filename='../log.txt',
                                 filemode='a+',
                                 format='%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s')
 

@@ -1,4 +1,5 @@
-import user, userRepository, repositoryContributors, userOrganization, repositoryTopic, userPR
+
+from scrap import repositoryContributors
 import config
 import pandas as pd
 from datetime import datetime, timezone, timedelta
@@ -9,7 +10,7 @@ if __name__ == '__main__':
     # data.toDataFrame()
     # data.saveCSV("users.csv", "w")
 
-    users = pd.read_csv('users.csv')
+    users = pd.read_csv('../users.csv')
     user_list = users['login'].values
     # for user in user_list:
     #   print(user)
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     # print(userRepository.get_data(a, "a", "a"))
     # print(userRepository.get_data(a, "a", "a", "a"))
 
-    repos = pd.read_csv('userRepository.csv')
+    repos = pd.read_csv('../userRepository.csv')
     login_list = repos['login'].values
     name_list = repos['name'].values
     for (login, name) in zip(login_list, name_list):
